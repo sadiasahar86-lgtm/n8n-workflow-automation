@@ -1,0 +1,390 @@
+{
+  "name": "Create a post on linkedin 1",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -48,
+        160
+      ],
+      "id": "459b9828-ddbf-4e00-969b-342a97b8b942",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1wsiM3TWcHZex3LclDVTnycRmWI-E_voLTIU1z9t9vG0",
+          "mode": "list",
+          "cachedResultName": "posts",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1wsiM3TWcHZex3LclDVTnycRmWI-E_voLTIU1z9t9vG0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1wsiM3TWcHZex3LclDVTnycRmWI-E_voLTIU1z9t9vG0/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "status",
+              "lookupValue": "to do"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        176,
+        160
+      ],
+      "id": "8c0847d9-e991-431a-afc2-3fda7a3a45d3",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "2MDuoowDEoAU15g9",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.tavily.com/search",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer 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"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"query\":\"search the latest news on {{ $json.topic }}\" ,\n  \"auto_parameters\": false,\n  \"topic\": \"general\",\n  \"search_depth\": \"basic\",\n  \"chunks_per_source\": 3,\n  \"max_results\": 3,\n  \"time_range\": null,\n  \"start_date\": \"2025-02-09\",\n  \"end_date\": \"2025-12-29\",\n  \"include_answer\": false,\n  \"include_raw_content\": false,\n  \"include_images\": false,\n  \"include_image_descriptions\": false,\n  \"include_favicon\": false,\n  \"include_domains\": [],\n  \"exclude_domains\": [],\n  \"country\": null,\n  \"include_usage\": false\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        400,
+        176
+      ],
+      "id": "08d3f108-17c7-4dfc-b334-4878dac096b2",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Article 1: {{ $json.results[0].content }}\nArticle 2:{{ $json.results[1].content }}\nArticle {{ $json.results[2].content }}3:",
+        "options": {
+          "systemMessage": "You are a professional LinkedIn Content Writer and AI Automation Assistant.\n\nYour task is to create a professional LinkedIn post whenever the user provides information about a completed project, workflow, automation, achievement, learning milestone, or professional experience.\n\nCreate the LinkedIn post based ONLY on the information provided by the user. Do not invent project details, tools, results, or achievements.\n\nWhen creating a post, identify the following information from the user's input:\n1. What project, workflow, or achievement was completed.\n2. Which tools, platforms, or technologies were used.\n3. What the workflow or project does.\n4. How the workflow works or what steps it follows.\n5. What problem it solves or what benefit it provides.\n6. What the user learned or achieved from the project.\n\nWrite the post in a professional, clear, and engaging LinkedIn style.\n\nStructure the post as:\n- An attention-grabbing opening\n- A short introduction to the project\n- A simple explanation of how it works\n- Key features or benefits\n- Tools and technologies used\n- A short professional closing\n- Relevant hashtags\n\nUse a few relevant emojis to make the post visually appealing, but do not overuse them.\n\nKeep the tone professional, confident, and beginner-friendly. Do not make the post sound exaggerated or claim that the user is an expert unless the user explicitly says so.\n\nIf the user provides a workflow, explain it in a simple sequence such as:\nTrigger → Processing → AI → Action\n\nIf important information is missing, do not make up details. Use only the information available in the user's input.\n\nOutput ONLY the final LinkedIn post, ready to copy and publish."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        624,
+        192
+      ],
+      "id": "bc63ca98-95d5-4fe7-a9cf-00cfd9951c5c",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "qwen/qwen3.8-27b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        576,
+        352
+      ],
+      "id": "8ebe84dc-ccfa-4712-9dad-8d78e004b446",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "hZAtbH8USkkSxe97",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1wsiM3TWcHZex3LclDVTnycRmWI-E_voLTIU1z9t9vG0",
+          "mode": "list",
+          "cachedResultName": "posts",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1wsiM3TWcHZex3LclDVTnycRmWI-E_voLTIU1z9t9vG0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1wsiM3TWcHZex3LclDVTnycRmWI-E_voLTIU1z9t9vG0/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "topic": "={{ $('Get row(s) in sheet').item.json.topic }}",
+            "status": "created",
+            "content": "={{ $json.output }}"
+          },
+          "matchingColumns": [
+            "topic"
+          ],
+          "schema": [
+            {
+              "id": "topic",
+              "displayName": "topic",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "content",
+              "displayName": "content",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        960,
+        192
+      ],
+      "id": "0ee14fdf-f0cd-4bf3-aeab-8b6ca3ced2b1",
+      "name": "Update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "2MDuoowDEoAU15g9",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "person": "HBhHne-X5B",
+        "text": "={{ $('AI Agent').item.json.output }}",
+        "additionalFields": {
+          "visibility": "CONNECTIONS"
+        }
+      },
+      "type": "n8n-nodes-base.linkedIn",
+      "typeVersion": 1,
+      "position": [
+        1184,
+        192
+      ],
+      "id": "73f3438d-c0cd-4316-930e-bf0170651bca",
+      "name": "Create a post",
+      "credentials": {
+        "linkedInOAuth2Api": {
+          "id": "xsSREu4zdp4hPG6l",
+          "name": "LinkedIn account"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Get row(s) in sheet": [
+      {
+        "json": {
+          "row_number": 2,
+          "topic": "AI Automation",
+          "status": "to do",
+          "content": ""
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "HTTP Request": [
+      {
+        "json": {
+          "query": "search the latest news on AI Automation",
+          "follow_up_questions": null,
+          "answer": null,
+          "images": [],
+          "results": [
+            {
+              "url": "https://aibusiness.com/automation/intelligent-automation",
+              "title": "Intelligent automation recent news | AI Business",
+              "content": "byEsther Shittu,Shaun Sutner\n\nJul 10, 2026\n\nPhoto illustration of poetic countrysideGenerative AI\n\nStartup Gets OpenAI Backing to Overhaul Enterprise AI AutomationStartup Gets OpenAI Backing to Overhaul Enterprise AI Automation\n\nbyGraham Hope\n\nJun 11, 2026\n\n2 Min Read\n\nPhoto of Meta logoAgentic AI\n\nMeta Rolls Out AI Agent for Enterprises GloballyMeta Rolls Out AI Agent for Enterprises Globally\n\nbyGraham Hope\n\nJun 4, 2026\n\n2 Min Read\n\nIllustration of router\n\nGenerative AI [...] Home\n Automation\n Intelligent automation\n\n# Intelligent automation\n\nFind out the latest news dedicated to Intelligent automation.\n\nRecursive logoGenerative AI\n\nVendor Developing Self-Improving AI Signs $410M AWS DealVendor Developing Self-Improving AI Signs $410M AWS Deal\n\nThe company has quickly gained traction since its founding in 2025.\n\nPicture of Graham Hope\n\nbyGraham Hope,Contributing Writer\n\nJul 29, 2026\n\n2 Min Read\n\nRetro Robots with flowing light trailsRobotics [...] Generative AI\n\nAI Aggregation Platform Valued at $1.3 Billion\n\nAI Aggregation Platform Valued at $1.3 Billion\n\nMay 28, 2026\n\n|\n\n2 Min Read\n\nPicture of Graham Hope\n\nbyGraham Hope,Contributing Writer\n\n\n\nSponsored Content\n\nRescuing Failing AI Projects\n\nRescuing Failing AI Projects\n\nMay 26, 2026\n\n|\n\n6 Min Read\n\nClaude icon\n\nGenerative AI\n\nAnthropic Targets Small Businesses With Latest Claude Release\n\nAnthropic Targets Small Businesses With Latest Claude Release\n\nMay 14, 2026\n\n|\n\n2 Min Read",
+              "score": 0.8066246,
+              "raw_content": null,
+              "id": "c2240d-00"
+            },
+            {
+              "url": "https://www.artificialintelligence-news.com",
+              "title": "AI News | Latest News | Insights Powering AI-Driven Business ...",
+              "content": "July 24, 2026\n\n# On-Demand Webinar Recording | Out of the Shadows: A Step-by-Step Approach to AI Governance\n\n[](\n\nAI and Us, Interviews\n\nApril 21, 2026\n\n# Uniquely Wired podcast with Microsoft’s Agnes Heftberger\n\n[](\n\nResource\n\nJanuary 8, 2026\n\n# On-Demand Webinar: AI Combined with Automation is the Perfect Marriage for Scalable, Intelligent Operations\n\n[](\n\nResource\n\nJanuary 6, 2026\n\n# On-Demand Webinar: DataOps Can Build the Foundation For Your Generative AI Ambitions\n\n[](\n\nResource [...] #### Industries\n\n### HoneyBook bets on agentic AI to streamline small business operations with its new Claude connector\n\nWorld of Work\n\nAugust 6, 2026\n\n### Zuckerberg details Meta’s personal AI superintelligence strategy\n\nAI and Us\n\nJuly 30, 2026\n\n### Google’s Gemini 3.6 Flash targets enterprise agent token costs\n\nAI in Action\n\nJuly 21, 2026\n\n#### Deep Learning\n\n### Aviva deploys AI to stop £230M in sophisticated insurance fraud\n\nAI in Action\n\nJune 8, 2026 [...] Amazon drone as the company plans to expand its Prime Air drone delivery service to nearly 500 cities and towns across the US by the end of 2026.\n\nPhysical AI\n\nAugust 20, 2026\n\n# Amazon’s Prime Air autonomous drones to reach 500 US cities\n\nStripe agrees to buy OpenRouter as AI model routing expands\n\nAI Business Strategy\n\nAugust 20, 2026\n\n# Stripe agrees to buy OpenRouter as AI model routing expands",
+              "score": 0.72559077,
+              "raw_content": null,
+              "id": "f45c22-01"
+            },
+            {
+              "url": "https://techcrunch.com/category/artificial-intelligence",
+              "title": "AI News & Artificial Intelligence",
+              "content": "### Anthropic’s annualized revenue surges to $65B\n\n  + Marina Temkin\n AI\n\n  ### AI automation startup Relay shuts down, staff joins Google’s Chrome team\n\n  + Lucas Ropek\n In Brief\n\n  ### Amazon, which started off selling books, is destroying rare texts to train AI\n\n  + Amanda Silberling\n AI\n\n  ### Groq raises $350M to fuel its pivot from AI chips to neocloud\n\n  + Rebecca Bellan\n In Brief\n\n  ### Nvidia investing $1.5B in SoftBank data center developer behind OpenAI project",
+              "score": 0.65146625,
+              "raw_content": null,
+              "id": "2e58d3-02"
+            }
+          ],
+          "response_time": 0.93,
+          "request_id": "8d00cf2f-e5cf-4cdb-981a-99fcc454d91b"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "AI Agent": [
+      {
+        "json": {
+          "output": "It appears that the text provided consists of a collection of news headlines and article snippets from various tech publications (e.g., about OpenAI, Meta, AWS, Stripe, and AI governance), rather than a specific description of **your** completed project, workflow, or personal achievement.\n\nAs per my instructions, I must create the post based **only** on the information you provide about your specific work. I cannot invent a project for you based on these news articles.\n\n**Please provide the details of your specific project or achievement so I can write the LinkedIn post for you.**\n\nTo help me write the best post, please include:\n1.  **What did you build or accomplish?** (e.g., \"I built an automation that...\")\n2.  **Which tools did you use?** (e.g., n8n, Make, Python, OpenAI, Zapier)\n3.  **How does it work?** (e.g., \"It triggers when..., then processes..., and finally...\")\n4.  **What problem does it solve?** (e.g., \"It saves 5 hours a week by...\")\n5.  **What did you learn?** (e.g., \"I learned how to handle API errors...\")\n\nOnce you share your details, I will generate the professional LinkedIn post immediately."
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "Update row in sheet": [
+      {
+        "json": {
+          "topic": "AI Automation",
+          "status": "created",
+          "content": "It appears that the text provided consists of a collection of news headlines and article snippets from various tech publications (e.g., about OpenAI, Meta, AWS, Stripe, and AI governance), rather than a specific description of **your** completed project, workflow, or personal achievement.\n\nAs per my instructions, I must create the post based **only** on the information you provide about your specific work. I cannot invent a project for you based on these news articles.\n\n**Please provide the details of your specific project or achievement so I can write the LinkedIn post for you.**\n\nTo help me write the best post, please include:\n1.  **What did you build or accomplish?** (e.g., \"I built an automation that...\")\n2.  **Which tools did you use?** (e.g., n8n, Make, Python, OpenAI, Zapier)\n3.  **How does it work?** (e.g., \"It triggers when..., then processes..., and finally...\")\n4.  **What problem does it solve?** (e.g., \"It saves 5 hours a week by...\")\n5.  **What did you learn?** (e.g., \"I learned how to handle API errors...\")\n\nOnce you share your details, I will generate the professional LinkedIn post immediately."
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Create a post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "f574d70f-4869-470c-8f2f-fe400950fc42",
+  "meta": {
+    "instanceId": "ae0494721d135b4751081bd0ecb76e8086cc5658bdbd6c25eee47e3da995f285"
+  },
+  "nodeGroups": [],
+  "id": "hy0l6ldAikPco88y",
+  "tags": []
+}

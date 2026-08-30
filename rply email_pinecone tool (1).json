@@ -1,0 +1,370 @@
+{
+  "name": "rply email/pinecone tool",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "simple": false,
+        "filters": {},
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -336,
+        -32
+      ],
+      "id": "aea811cf-51b4-41fa-8925-1e3649efc86c",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "0RlGh1417fyYZ5LV",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "inputText": "={{ $json.text }}",
+        "categories": {
+          "categories": [
+            {
+              "category": "AI Automation services customer support",
+              "description": "any email that is related to AI Automation services customer support"
+            },
+            {
+              "category": "other",
+              "description": "any email that is not related to AI Automation services customer support"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.textClassifier",
+      "typeVersion": 1.1,
+      "position": [
+        -112,
+        -32
+      ],
+      "id": "0d37add1-f8ab-4687-a32f-bd3d65b558f0",
+      "name": "Text Classifier"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.1-flash-lite-preview",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        -192,
+        96
+      ],
+      "id": "f6e0e142-470d-4ac5-8f2b-797df00e99bd",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "kPi2b4ZxpDt3eSZ6",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        48,
+        128
+      ],
+      "id": "6bb5f71e-85ab-4e96-8be2-bd7102bbefe2",
+      "name": "No Operation, do nothing"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Gmail Trigger').item.json.text }}",
+        "options": {
+          "systemMessage": "#overview\nyou are customer support agent from sadia AI Automation cutomer support services.your job is to write responses to in coming email using your  tool.\n#output\nonly the email body\n#instructions\nwrite friendly emails with emojis\nhlpful solutions from sadia AI insights"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        256,
+        -16
+      ],
+      "id": "e33ee813-ba1e-4542-a69b-6bbc3fa1da33",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.5-flash-lite",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        256,
+        160
+      ],
+      "id": "8dba3885-5fe3-4569-8197-43e408bdc5d5",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "kPi2b4ZxpDt3eSZ6",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "use this tool for AI Automation customer support services questioning answering",
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "sadiaai",
+          "mode": "list",
+          "cachedResultName": "sadiaai"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1.3,
+      "position": [
+        496,
+        128
+      ],
+      "id": "5f5a226c-5428-4987-9bfc-84c5a326d21b",
+      "name": "Pinecone Vector Store",
+      "credentials": {
+        "pineconeApi": {
+          "id": "LuCTtaU3k9mSDloJ",
+          "name": "Pinecone account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-embedding-2"
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        848,
+        176
+      ],
+      "id": "4c6841a6-02c0-473c-b9f6-c59f54ec21ec",
+      "name": "Embeddings Google Gemini",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "kPi2b4ZxpDt3eSZ6",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "reply",
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+        "emailType": "text",
+        "message": "={{ $json.output }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        624,
+        -16
+      ],
+      "id": "807cf73c-5604-407c-bf3a-92e06c7b1b85",
+      "name": "Reply to a message",
+      "webhookId": "22adcdb6-5c93-48fb-ae6f-64fb7231dcf4",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "0RlGh1417fyYZ5LV",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Gmail Trigger": [
+      {
+        "json": {
+          "id": "1a0390fcb947a249",
+          "threadId": "1a038c79497d5c0e",
+          "labelIds": [
+            "IMPORTANT",
+            "CATEGORY_PERSONAL",
+            "INBOX"
+          ],
+          "sizeEstimate": 8934,
+          "headers": {
+            "delivered-to": "Delivered-To: sadiasahar86@gmail.com",
+            "received": "Received: from mail-sor-f41.google.com (mail-sor-f41.google.com. [209.85.220.41])\r\n        by mx.google.com with SMTPS id 4fb4d7f45d1cf-6a5cc5397casor527432a12.3.2026.08.25.06.15.31\r\n        for <Sadiasahar86@gmail.com>\r\n        (Google Transport Security);\r\n        Tue, 25 Aug 2026 06:15:31 -0700 (PDT)",
+            "x-received": "X-Received: by 2002:a05:6402:504c:b0:6a5:d8f0:dc0d with SMTP id\r\n 4fb4d7f45d1cf-6a5d8f0dd7dmr1899966a12.8.1787663730577; Tue, 25 Aug 2026\r\n 06:15:30 -0700 (PDT)",
+            "arc-seal": "ARC-Seal: i=1; a=rsa-sha256; t=1787663731; cv=none;\r\n        d=google.com; s=arc-20260327;\r\n        b=RKWe8S/SZY00MVEH6girrTYGHuZYL4XjLHGmlawaFzUq+HWDtuLRYc1p+cxGHGXkFw\r\n         uj+22+IfBI6ayK1YeHb2HqoP2M0uAoNHc6K5xvf+lVw8+dNhPZ21lzoIfrCfFKcjOnyn\r\n         vp9gjjOWJ91w9r0Cz3OrxIeboF7TA1AcXapr8LQi8H9LcRDIOLsqxWQlvy8zbOuO3zkW\r\n         XwFc/VnGiF7wC8xN2OeulPSpgZzc9Fjg51wkw4ux195NUiXLhNB+gpxSvRBwFDO4MLbS\r\n         mwqISs8SVlkBetWVQfwEuYfZZ6EpY5HWDAM1DU++bm5nMAee4qHCQauUNoo5sA5IWZ1Z\r\n         K45Q==",
+            "arc-message-signature": "ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;\r\n        h=to:subject:message-id:date:from:in-reply-to:references:mime-version\r\n         :dkim-signature;\r\n        bh=Lbrqs4jcemKN4gc5RzZrS2eDcLN0MIduDFDYz/7JjW4=;\r\n        fh=QGWLPOVghHYA47rwB3YfGl4TJ3LLa4smQmxNLarE1SA=;\r\n        b=Vll3yBuhwhgJHz7POrhGZYU+/P7dC82Tsup48deLxond7acD6u8/I5YmBm1Yj4QTkc\r\n         1kb2t2o3lZlXzZLiD8RODBjj8fMbtbBlOEQ1w59dGx1CtMRAWa15RiLV5v4TF90ZC4e+\r\n         kVNMcvu7gWGoCRpKqRJ+NqXB232lcNZv/Wylq9Wjf1nDMWr2wtGYZwFoYHfwenvggwpf\r\n         zBe4BeQbmkfiDSqZf/JVnuLyaqw9nXD42yk6tf9U+vU0KQa4TMKFkJ4f+p4aVzsoHHm6\r\n         LxlmDrIBIaYvYx/3Ed5cwd9/zUbqBX6ybMFdSb6u33K6GPFg5+hUOBbA4/ZR5KbDZWg9\r\n         EFrA==;\r\n        dara=google.com",
+            "arc-authentication-results": "ARC-Authentication-Results: i=1; mx.google.com; arc=none",
+            "return-path": "Return-Path: <saharrana272@gmail.com>",
+            "received-spf": "Received-SPF: pass (google.com: domain of saharrana272@gmail.com designates 209.85.220.41 as permitted sender) client-ip=209.85.220.41;",
+            "authentication-results": "Authentication-Results: mx.google.com;\r\n       dkim=pass header.i=@gmail.com header.s=20251104 header.b=VGWCdE8k;\r\n       arc=pass (i=1);\r\n       spf=pass (google.com: domain of saharrana272@gmail.com designates 209.85.220.41 as permitted sender) smtp.mailfrom=saharrana272@gmail.com;\r\n       dmarc=pass (p=NONE sp=QUARANTINE dis=NONE) header.from=gmail.com;\r\n       dara=pass header.i=@gmail.com",
+            "dkim-signature": "DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;\r\n        d=gmail.com; s=20251104; t=1787663731; x=1788268531; dara=google.com;\r\n        h=content-type:to:subject:message-id:date:from:in-reply-to:references\r\n         :mime-version:from:to:cc:subject:date:message-id:reply-to\r\n         :content-type;\r\n        bh=Lbrqs4jcemKN4gc5RzZrS2eDcLN0MIduDFDYz/7JjW4=;\r\n        b=VGWCdE8kC0342LLjQ2HfLJumNrRB4pmci+FeOJU/ZPnkur073cQzacFMM0kqBRXrZX\r\n         jstLHeCUIf85TGzRB8la2C7CaJzUNuLmUwTxeupuxKLxQnp7XScfYgu7CLUJcb3qY+Vr\r\n         lbyyVz5ZqZBOmzyPnm6yhjbn8hJngyUD9nBiu4dnXXXSpPsQxHRz9xM7AHpLOoL0+CMa\r\n         dBPvCByxb1cnZAZKNSm9je35vHBwuK7dIbHZC1U5DjIBqUE7XLQIwSQvuKkyC4M6Cy0v\r\n         lSsTjE4ncEqOwT9Nu09xob3yDDDKyEiHmCfQf4C7Xk8/cESFvguyANavuJ/Hjw4/TwnO\r\n         2Jqw==",
+            "x-google-dkim-signature": "X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;\r\n        d=1e100.net; s=20251104; t=1787663731; x=1788268531;\r\n        h=content-type:to:subject:message-id:date:from:in-reply-to:references\r\n         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date\r\n         :message-id:reply-to:content-type;\r\n        bh=Lbrqs4jcemKN4gc5RzZrS2eDcLN0MIduDFDYz/7JjW4=;\r\n        b=EmNYcjEBAmyNGkwfLe1xq7iJ4SfVmcTz3Z+ii2uBMRARqbrUck6zxZ83VE3DzAwkur\r\n         WbOWXjCbCiVzZKN16kaEd0hnRsKjjeijjg1fc+Pv6pukCYYfw8bOk5X54R+J5+Ko7X6+\r\n         XRwm5Alno8bRFUaq2NwZN6/gFfS1Ait6/ZGH701ZBX8umARzBVxXOtifG0G6bYW8vmu9\r\n         Ixqu5IopZaIoA2smN3ZJSaOkGeuCIe89yHYrQBGaaJGIbq+exYGXW/TDSA/zOQXxBtoc\r\n         QFF59XwOoTVFlbHEe6Yq88XN3+PuA2qjhGWQ0wYVk+WihOpdZix5AF88AX+kIEgzIivb\r\n         qaHg==",
+            "x-gm-message-state": "X-Gm-Message-State: AFuF++nkCkp4AnCO4RiSeixo4i55kfLYenI+qSvXemDxmjvKzas0PBrZ\r\n\t+2H+f+frt+bBUO51vCwRJ95FLBFe5pR3rTuUxj4GudiPMmcJe3P4jYW+xWJxEQqPH71Mf0LeDlS\r\n\t8OJ87zYZGWj2X0css9wu52rjT2L3GHjZc5iQL",
+            "x-gm-gg": "X-Gm-Gg: AR+sD10mMVbI/zMbQyi4t+eq5/kUIIiQJtsiDw0rnP/4InDR4QcY1d5/ppa/MiOApUh\r\n\toMWv3T+bed2fWzkODgSXl60I8Vo7W1Jd9lqAETozzlyY1siHDPSYkhrDU4hVz/3+CxLNoI2dCac\r\n\tIr11G8KontSheZZDlmwakUEKKr8cb2ZszzNEG78z6ZMJGF3cJ25bRQN+jDRY7zgCbfx+X0+b+qW\r\n\tSOmEL2SZ9Si5g9fJgu5Kc923ol2EGhqboRQecxSjCTQEZQG2tSXnnCrRrSDKZbmkKx61wfXeFBx\r\n\taXj+jI96cy8fMHxY1gz4LiuHb+2DV6m+lIQNZDVj/ckS",
+            "mime-version": "MIME-Version: 1.0",
+            "references": "References: <CAKTz8FPXCfLUvFqV0784J84b+R9qoh_CmaLUQ0NwnJBeTK1A=g@mail.gmail.com>",
+            "in-reply-to": "In-Reply-To: <CAKTz8FPXCfLUvFqV0784J84b+R9qoh_CmaLUQ0NwnJBeTK1A=g@mail.gmail.com>",
+            "from": "From: sahar Khan <saharrana272@gmail.com>",
+            "date": "Date: Tue, 25 Aug 2026 18:15:18 +0500",
+            "x-gm-features": "X-Gm-Features: AcwNN1ULwYCQt1CdVufZlXmgteovtUvOTnGjQLLr3qjVhrYVYEqJQoi5XZtbwXI",
+            "message-id": "Message-ID: <CAKTz8FN6FJu9K+AYtdM=-9WeBrD3G=6LMpcgCm7BWqO-Vn7a7Q@mail.gmail.com>",
+            "subject": "Subject: Re: Ai Automation services",
+            "to": "To: \"Sadiasahar86@gmail.com\" <Sadiasahar86@gmail.com>",
+            "content-type": "Content-Type: multipart/alternative; boundary=\"000000000000a391740659dee549\""
+          },
+          "html": "<div dir=\"auto\"></div><br><div class=\"gmail_quote gmail_quote_container\"><div dir=\"ltr\" class=\"gmail_attr\">On Tue, Aug 25, 2026, 4:56 PM sahar Khan &lt;<a href=\"mailto:saharrana272@gmail.com\">saharrana272@gmail.com</a>&gt; wrote:<br></div><blockquote class=\"gmail_quote\" style=\"margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex\"><div dir=\"auto\">Dear Sadia <div dir=\"auto\"><br></div><div dir=\"auto\">I hope you’re doing well. I’m reaching out because I’m very interested in your AI automation services and would love to learn more about how they could help improve and automate business processes.</div><div dir=\"auto\"><br></div><div dir=\"auto\">Could you please share more details about your services, pricing, and how we can get started?</div><div dir=\"auto\"><br></div><div dir=\"auto\">I look forward to hearing from you.</div><div dir=\"auto\"><br></div><div dir=\"auto\">Best regards,</div><div dir=\"auto\">Sahar</div></div>\n</blockquote></div>\n",
+          "text": "On Tue, Aug 25, 2026, 4:56 PM sahar Khan <saharrana272@gmail.com> wrote:\n\n> Dear Sadia\n>\n> I hope you’re doing well. I’m reaching out because I’m very interested in\n> your AI automation services and would love to learn more about how they\n> could help improve and automate business processes.\n>\n> Could you please share more details about your services, pricing, and how\n> we can get started?\n>\n> I look forward to hearing from you.\n>\n> Best regards,\n> Sahar\n>\n",
+          "textAsHtml": "<p>On Tue, Aug 25, 2026, 4:56&#x202F;PM sahar Khan &lt;<a href=\"mailto:saharrana272@gmail.com\">saharrana272@gmail.com</a>&gt; wrote:</p><p>&gt; Dear Sadia<br/>&gt;<br/>&gt; I hope you&rsquo;re doing well. I&rsquo;m reaching out because I&rsquo;m very interested in<br/>&gt; your AI automation services and would love to learn more about how they<br/>&gt; could help improve and automate business processes.<br/>&gt;<br/>&gt; Could you please share more details about your services, pricing, and how<br/>&gt; we can get started?<br/>&gt;<br/>&gt; I look forward to hearing from you.<br/>&gt;<br/>&gt; Best regards,<br/>&gt; Sahar<br/>&gt;</p>",
+          "subject": "Re: Ai Automation services",
+          "references": "<CAKTz8FPXCfLUvFqV0784J84b+R9qoh_CmaLUQ0NwnJBeTK1A=g@mail.gmail.com>",
+          "date": "2026-08-25T13:15:18.000Z",
+          "to": {
+            "value": [
+              {
+                "address": "Sadiasahar86@gmail.com",
+                "name": ""
+              }
+            ],
+            "html": "<span class=\"mp_address_group\"><a href=\"mailto:Sadiasahar86@gmail.com\" class=\"mp_address_email\">Sadiasahar86@gmail.com</a></span>",
+            "text": "Sadiasahar86@gmail.com"
+          },
+          "from": {
+            "value": [
+              {
+                "address": "saharrana272@gmail.com",
+                "name": "sahar Khan"
+              }
+            ],
+            "html": "<span class=\"mp_address_group\"><span class=\"mp_address_name\">sahar Khan</span> &lt;<a href=\"mailto:saharrana272@gmail.com\" class=\"mp_address_email\">saharrana272@gmail.com</a>&gt;</span>",
+            "text": "\"sahar Khan\" <saharrana272@gmail.com>"
+          },
+          "messageId": "<CAKTz8FN6FJu9K+AYtdM=-9WeBrD3G=6LMpcgCm7BWqO-Vn7a7Q@mail.gmail.com>",
+          "inReplyTo": "<CAKTz8FPXCfLUvFqV0784J84b+R9qoh_CmaLUQ0NwnJBeTK1A=g@mail.gmail.com>"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Text Classifier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Text Classifier",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Text Classifier": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pinecone Vector Store": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Google Gemini": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Reply to a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "09f3ca60-318b-4fbe-b4ec-5784cb0e1c7c",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ae0494721d135b4751081bd0ecb76e8086cc5658bdbd6c25eee47e3da995f285"
+  },
+  "nodeGroups": [],
+  "id": "hyU4BD92jPh8vzhZ",
+  "tags": []
+}

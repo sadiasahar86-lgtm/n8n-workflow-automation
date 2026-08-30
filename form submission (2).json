@@ -1,0 +1,281 @@
+{
+  "name": "form submission",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "welcome to Sahar AI insights ",
+        "formDescription": "Kindly fill these below information to get started with sahar AI insights",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "FULL NAME",
+              "placeholder": "Sahar",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Email",
+              "fieldType": "email",
+              "placeholder": "sahar@gmail.com",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Company Name",
+              "placeholder": "Google",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Required service",
+              "placeholder": "e.g web dev,mbl dev",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Industry",
+              "placeholder": "Tech,Desining,Ecom",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Starting Date",
+              "fieldType": "date",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.6,
+      "position": [
+        -608,
+        -128
+      ],
+      "id": "7de10c83-5c5a-495a-ad97-69ddb9838b82",
+      "name": "On form submission",
+      "webhookId": "f7d7b951-65ba-4ae4-a6dc-1206c78f3094"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "fb8a61ac-807b-471a-80d5-4b5f271d3e79",
+              "name": "FULL NAME",
+              "value": "={{ $json['FULL NAME'] }}",
+              "type": "string"
+            },
+            {
+              "id": "de64f189-5996-4e9e-8077-078af0eb92fd",
+              "name": "Email",
+              "value": "={{ $json.Email }}",
+              "type": "string"
+            },
+            {
+              "id": "15feb5b2-f1c5-4b58-8303-4605a7692335",
+              "name": "Company Name",
+              "value": "={{ $json['Company Name'] }}",
+              "type": "string"
+            },
+            {
+              "id": "d7181c04-66cf-469e-a324-15e9ae24a776",
+              "name": "Required service",
+              "value": "={{ $json['Required service'] }}",
+              "type": "string"
+            },
+            {
+              "id": "b8aebc3e-148b-4508-a60b-6b5117fbbfc7",
+              "name": "Industry",
+              "value": "={{ $json.Industry }}",
+              "type": "string"
+            },
+            {
+              "id": "76064efe-f2e7-4548-82e7-ede1d55f1cec",
+              "name": "Starting Date",
+              "value": "={{ $json['Starting Date'] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        -400,
+        -128
+      ],
+      "id": "1bc9aca2-08ba-43b7-b146-f663256c8834",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=kindly generate the wellcome message for the client{{ $json['FULL NAME'] }}client email is{{ $json.Email }}from sahar AI insights{the agency that provide tech and agentic solutions}client name is {{ $json['FULL NAME'] }} start from{{ $json['Starting Date'] }} tone should be polite and friendly also mention that we are excited to work with them\nsahar insights owner name sahar khan\nphone number is 03344562356\nemail is saharkhan@gmail.com\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -224,
+        -128
+      ],
+      "id": "5826086a-396e-4bdc-9d0e-ff8b64a7e247",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.6-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        -256,
+        32
+      ],
+      "id": "9a7735e7-3b84-49ed-a1d9-726547b38bed",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "01IvQ6qgosR7xxPO",
+          "name": "Google Gemini(PaLM) Api account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "models/gemini-3-flash-preview"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "create professional welcome email for the client.\nreturn only valid Json with exactly these two feilds:\n{\"subject\": \"A short professinal email subject\", \"body\": \"the complete professional welcome email\"}\nkeep the subject and body completely separate. Do not put the subject inside the body.\n"
+            },
+            {
+              "content": "={{ $json.output }}"
+            },
+            {
+              "content": "i say that seprate things like name,gmail,phonenumber,date,services from the text.both body and text are wrtten seperately"
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.2,
+      "position": [
+        144,
+        -128
+      ],
+      "id": "29a61cde-754c-4045-ac1f-d80d184795f7",
+      "name": "Message a model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "01IvQ6qgosR7xxPO",
+          "name": "Google Gemini(PaLM) Api account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "sadiasahar86@gmail.com",
+        "subject": "={{ $json.content.parts[0].text }}",
+        "emailType": "text",
+        "message": "welcome  sadiasaha we are glad to see ur form and we invited you to join our company",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        512,
+        -112
+      ],
+      "id": "b9b59290-2032-4830-b9d4-d32d923cc872",
+      "name": "Send a message",
+      "webhookId": "c2e4dba7-3165-4bf1-8a37-0d291c456974",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "KI7lnh91TLyWsqRI",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "870f6913-703c-4e14-8842-40aac39030e2",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f6029ea1e8cd62b2c5f227a1964d860407ec0d6793eabfc619410609b560ad51"
+  },
+  "nodeGroups": [],
+  "id": "SLh6sYWC9B86BSwr",
+  "tags": []
+}
