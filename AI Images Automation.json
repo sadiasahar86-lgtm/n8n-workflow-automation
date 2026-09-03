@@ -1,0 +1,683 @@
+{
+  "name": "AI Images Automation",
+  "nodes": [
+    {
+      "parameters": {
+        "url": "https://api.kie.ai/api/v1/jobs/recordInfo",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "taskId",
+              "value": "={{ $json.data.taskId }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer ad12d0bb5c8e83ece2531b4ac8cb653a"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        416,
+        0
+      ],
+      "id": "cff01a9f-394a-4f6b-ac07-19448fbf2202",
+      "name": "Get Image"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.kie.ai/api/v1/jobs/createTask",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer ad12d0bb5c8e83ece2531b4ac8cb653a"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"google/nano-banana\",\n  \"input\": {\n    \"prompt\": \"{{ $json.output.prompt1 }}\",\n    \"output_format\": \"png\",\n    \"aspect_ratio\": \"16:9\"\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        0,
+        0
+      ],
+      "id": "d06e2ad9-65b4-4892-8444-b58561acc294",
+      "name": "Send Image"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "a8d465c2-8d59-4cf5-8da5-0cfc1719f4f3",
+      "name": "Wait",
+      "webhookId": "078a0475-62d3-487a-88bd-9f47f6813e41"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "7d279802-0325-4a48-9ced-8411fd1f60b5",
+              "leftValue": "={{ $json.data.state }}",
+              "rightValue": "success",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        624,
+        0
+      ],
+      "id": "5b4a191d-660d-4bf9-a183-c8977d4621c6",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "formTitle": "Upload Idea for your Post",
+        "formDescription": "Upload Idea for your Post",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Idea",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Idea2",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.5,
+      "position": [
+        -640,
+        160
+      ],
+      "id": "5beac035-1856-4afa-a061-cfdd5cf2423e",
+      "name": "On form submission",
+      "webhookId": "c47a53f5-f7e3-4823-9af9-d14804e189e9"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Idea :  {{ $json.Idea }}\n\nIdea2 : {{ $json.Idea2 }}\n\nCreate a two prompts for these two images of these ideas under 1000 words",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -416,
+        160
+      ],
+      "id": "b77767d0-468a-45a5-b25e-798a2b7c2d87",
+      "name": "Prompt Generator"
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"prompt1\": {\n      \"type\": \"string\",\n      \"description\": \"Image prompt generated from Idea\"\n    },\n    \"prompt2\": {\n      \"type\": \"string\",\n      \"description\": \"Image prompt generated from Idea2\"\n    }\n  },\n  \"required\": [\"prompt1\", \"prompt2\"]\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        -272,
+        352
+      ],
+      "id": "80161214-8a2a-4a21-a3c1-8dad35e07785",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "url": "https://api.kie.ai/api/v1/jobs/recordInfo",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "taskId",
+              "value": "={{ $json.data.taskId }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer ad12d0bb5c8e83ece2531b4ac8cb653a"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        416,
+        320
+      ],
+      "id": "872eeea1-abac-43fb-b36a-83ccfe53f9e5",
+      "name": "Get Image1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.kie.ai/api/v1/jobs/createTask",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer ad12d0bb5c8e83ece2531b4ac8cb653a"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"google/nano-banana\",\n  \"input\": {\n    \"prompt\": \"{{ $json.output.prompt2 }}\",\n    \"output_format\": \"png\",\n    \"aspect_ratio\": \"16:9\"\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        0,
+        320
+      ],
+      "id": "e5dbbad6-a5c4-4e95-9dcc-c9ff4017f3ba",
+      "name": "Send Image1"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        208,
+        320
+      ],
+      "id": "46e5a9c1-f3f7-4632-a3a0-e40af403f4cb",
+      "name": "Wait1",
+      "webhookId": "078a0475-62d3-487a-88bd-9f47f6813e41"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "7d279802-0325-4a48-9ced-8411fd1f60b5",
+              "leftValue": "={{ $json.data.state }}",
+              "rightValue": "success",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        624,
+        320
+      ],
+      "id": "1ceaf9b5-77cf-4058-b578-be2374bf5eab",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "url": "https://api.kie.ai/api/v1/jobs/recordInfo",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "taskId"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer ad12d0bb5c8e83ece2531b4ac8cb653a"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        528,
+        656
+      ],
+      "id": "13773c54-35ec-417f-ac54-5df7a261bbf3",
+      "name": "Get Image-Ref"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.kie.ai/api/v1/jobs/createTask",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer ad12d0bb5c8e83ece2531b4ac8cb653a"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"model\": \"google/nano-banana-edit\",\n  \"input\": {\n    \"prompt\": \"turn this photo into a character figure. Behind it, place a box with the character’s image printed on it, and a computer showing the Blender modeling process on its screen. In front of the box, add a round plastic base with the character figure standing on it. set the scene indoors if possible\",\n    \"image_urls\": [\n      \"https://file.aiquickdraw.com/custom-page/akr/section-images/1756223420389w8xa2jfe.png\"\n    ],\n    \"output_format\": \"png\",\n    \"aspect_ratio\": \"1:1\"\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        64,
+        656
+      ],
+      "id": "e748fc5d-65d4-417f-b20f-3ad68afe30ec",
+      "name": "Send Image-Ref"
+    },
+    {
+      "parameters": {
+        "amount": 10
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        256,
+        656
+      ],
+      "id": "a8983ea5-0c0b-42ba-b4f8-ea67510d385c",
+      "name": "Wait2",
+      "webhookId": "be9d98e3-90ac-4233-a929-a6f01474f53c"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "a408db18-f864-4760-ad98-13c835a9045a",
+              "leftValue": "",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        736,
+        656
+      ],
+      "id": "8345f931-03f2-428c-93cb-fad7415dd087",
+      "name": "If2"
+    },
+    {
+      "parameters": {
+        "model": "qwen/qwen3.8-27b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        -560,
+        368
+      ],
+      "id": "b0239313-c0d0-4581-978f-05826d37fdc4",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "hZAtbH8USkkSxe97",
+          "name": "Groq account"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Send Image": [
+      {
+        "json": {
+          "code": 200,
+          "msg": "success",
+          "data": {
+            "taskId": "9e2646afe7dc689f1b0bbf21c3474753",
+            "recordId": "9e2646afe7dc689f1b0bbf21c3474753"
+          }
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "Get Image": [
+      {
+        "json": {
+          "code": 200,
+          "msg": "success",
+          "data": {
+            "taskId": "9e2646afe7dc689f1b0bbf21c3474753",
+            "model": "google/nano-banana",
+            "state": "success",
+            "param": "{\"input\":\"{\\\"output_format\\\":\\\"png\\\",\\\"image_size\\\":\\\"16:9\\\",\\\"prompt\\\":\\\"A surreal painting of a giant banana floating in space, stars and galaxies in the background, vibrant colors, digital art\\\"}\",\"model\":\"google/nano-banana\"}",
+            "resultJson": "{\"resultUrls\":[\"https://tempfile.aiquickdraw.com/workers/nano/image_1781513158054_6c8tau.png\"]}",
+            "failCode": null,
+            "failMsg": null,
+            "costTime": 11,
+            "completeTime": 1781513158923,
+            "createTime": 1781513146822,
+            "creditsConsumed": 4
+          }
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "Get Image1": [
+      {
+        "json": {
+          "code": 200,
+          "msg": "success",
+          "data": {
+            "taskId": "9e2646afe7dc689f1b0bbf21c3474753",
+            "model": "google/nano-banana",
+            "state": "success",
+            "param": "{\"input\":\"{\\\"output_format\\\":\\\"png\\\",\\\"image_size\\\":\\\"16:9\\\",\\\"prompt\\\":\\\"A surreal painting of a giant banana floating in space, stars and galaxies in the background, vibrant colors, digital art\\\"}\",\"model\":\"google/nano-banana\"}",
+            "resultJson": "{\"resultUrls\":[\"https://tempfile.aiquickdraw.com/workers/nano/image_1781513158054_6c8tau.png\"]}",
+            "failCode": null,
+            "failMsg": null,
+            "costTime": 11,
+            "completeTime": 1781513158923,
+            "createTime": 1781513146822,
+            "creditsConsumed": 4
+          }
+        }
+      }
+    ],
+    "Send Image1": [
+      {
+        "json": {
+          "code": 200,
+          "msg": "success",
+          "data": {
+            "taskId": "9e2646afe7dc689f1b0bbf21c3474753",
+            "recordId": "9e2646afe7dc689f1b0bbf21c3474753"
+          }
+        }
+      }
+    ],
+    "On form submission": [
+      {
+        "json": {
+          "Idea": "girl reading a news paper",
+          "Idea2": "girl is siting in a room",
+          "submittedAt": "2026-09-02T23:58:08.100-07:00",
+          "formMode": "test"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Send Image": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Get Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Image": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Prompt Generator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prompt Generator": {
+      "main": [
+        [
+          {
+            "node": "Send Image",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send Image1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Prompt Generator",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Image1": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Image1": {
+      "main": [
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "Get Image1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Image-Ref": {
+      "main": [
+        [
+          {
+            "node": "Wait2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait2": {
+      "main": [
+        [
+          {
+            "node": "Get Image-Ref",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Image-Ref": {
+      "main": [
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Wait2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Prompt Generator",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "447faa71-18cb-4e09-ab29-866e693caa07",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ae0494721d135b4751081bd0ecb76e8086cc5658bdbd6c25eee47e3da995f285"
+  },
+  "nodeGroups": [],
+  "id": "Mrt8aKXQYQaiOTwv",
+  "tags": []
+}
