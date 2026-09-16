@@ -1,0 +1,618 @@
+{
+  "name": "RAG pipeline and Chatbot",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "triggerOn": "specificFolder",
+        "folderToWatch": {
+          "__rl": true,
+          "value": "1YHsZMtkT4xb95_f_-pGWDUXR-vlJh7FZ",
+          "mode": "list",
+          "cachedResultName": "n8n series 1",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1YHsZMtkT4xb95_f_-pGWDUXR-vlJh7FZ"
+        },
+        "event": "fileCreated",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "c8903152-44c3-4eac-a55b-f9892101cc58",
+      "name": "Google Drive Trigger",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "4Y8F1XaJ4FM4GopA",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        192,
+        0
+      ],
+      "id": "6962c216-eec6-4547-b5f7-6344c0700eb5",
+      "name": "Download file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "4Y8F1XaJ4FM4GopA",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "n8n-series-1",
+          "mode": "list",
+          "cachedResultName": "n8n-series-1"
+        },
+        "options": {
+          "clearNamespace": false,
+          "pineconeNamespace": "RAG"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1.3,
+      "position": [
+        432,
+        -32
+      ],
+      "id": "246a34f6-7215-4249-bef2-737a9c3b3eab",
+      "name": "Pinecone Vector Store",
+      "credentials": {
+        "pineconeApi": {
+          "id": "LuCTtaU3k9mSDloJ",
+          "name": "Pinecone account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-embedding-2"
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        512,
+        208
+      ],
+      "id": "71457dc7-12a6-4a02-a8bd-25091bec3103",
+      "name": "Embeddings Google Gemini",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "kPi2b4ZxpDt3eSZ6",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "dataType": "binary",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1,
+      "position": [
+        384,
+        224
+      ],
+      "id": "fcb7961c-88b7-4dd4-a4a0-58ad4b7ee636",
+      "name": "Default Data Loader"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        896,
+        -48
+      ],
+      "id": "02b6bfb0-4103-48e7-9c67-df9c451dd164",
+      "name": "When chat message received",
+      "webhookId": "127c8777-d348-4a40-a5cc-78d7c7e0b3e3"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1120,
+        -48
+      ],
+      "id": "a0b48f93-ea5b-4a78-8283-ed8e4cd9ce01",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.5-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        1008,
+        176
+      ],
+      "id": "f29de128-061f-42c2-a39c-40f972dfb76d",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "kPi2b4ZxpDt3eSZ6",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "use this knowledge base for the courses name their timing, fee, location, ai automation course outline, teacher name,",
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "n8n-series-1",
+          "mode": "list",
+          "cachedResultName": "n8n-series-1"
+        },
+        "options": {
+          "pineconeNamespace": "RAG"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1.3,
+      "position": [
+        1424,
+        112
+      ],
+      "id": "9777e3f7-9658-40ee-98d8-76f1b0e318ec",
+      "name": "Pinecone Vector Store1",
+      "credentials": {
+        "pineconeApi": {
+          "id": "LuCTtaU3k9mSDloJ",
+          "name": "Pinecone account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-embedding-2"
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1328,
+        256
+      ],
+      "id": "146111f8-4868-4a3f-8895-a0154c4b4d6e",
+      "name": "Embeddings Google Gemini1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "kPi2b4ZxpDt3eSZ6",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": " RAG Pipeline and Chatbot",
+        "height": 80,
+        "width": 256,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        656,
+        -144
+      ],
+      "id": "466e2027-39f1-445e-8557-e87e77b458e9",
+      "name": "Sticky Note"
+    }
+  ],
+  "pinData": {
+    "Pinecone Vector Store": [
+      {
+        "json": {
+          "metadata": {
+            "source": "blob",
+            "blobType": "application/pdf",
+            "pdf": {
+              "info": {
+                "PDFFormatVersion": "1.4",
+                "Language": null,
+                "EncryptFilterName": null,
+                "IsLinearized": false,
+                "IsAcroFormPresent": false,
+                "IsXFAPresent": false,
+                "IsCollectionPresent": false,
+                "IsSignaturesPresent": false
+              },
+              "metadata": null,
+              "totalPages": 2
+            },
+            "loc": {
+              "lines": {
+                "from": 1,
+                "to": 22
+              }
+            }
+          },
+          "pageContent": "University of Sargodha – E-Rozgaar Center\nDigital Skills & Freelancing Courses | Course Timings, Fee, Location & AI Automation Program\nAdmissions & General Course Information\nItem Details\nFee Rs. 9,000 per course\nLast Date to Apply 25 August 2026\nClasses Start 26 August 2026\nEligibility Intermediate results awaiting students can apply (as shown in the admissions poster)\nLocation E-Rozgaar Center, Top Floor, STC Building, University of Sargodha\nContact 048-9230830\nOnline Portal erozgaar.uos.edu.pk\nE-Rozgaar Course Timings\n# Course Timing\n1 VA & Office Automation (Basic Computer) 08:30 AM – 10:00 AM\n2 Social Media Marketing (Google, Meta & TikTok Ads) 10:00 AM – 11:30 AM\n3 WordPress / Web Development 11:30 AM – 01:00 PM\n4 AI Graphic & UI/UX Design 01:00 PM – 02:15 PM\n5 eCommerce with AI (Amazon & Shopify) 02:15 PM – 03:30 PM\n6 SEO & Content Marketing 03:30 PM – 04:45 PM\n7 AI Tools & Automation (AI) 04:45 PM – 06:00 PM\nAI Tools & Automation Mastery Program\nInstructor: Muhammad Usama Ehsan"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "metadata": {
+            "source": "blob",
+            "blobType": "application/pdf",
+            "pdf": {
+              "info": {
+                "PDFFormatVersion": "1.4",
+                "Language": null,
+                "EncryptFilterName": null,
+                "IsLinearized": false,
+                "IsAcroFormPresent": false,
+                "IsXFAPresent": false,
+                "IsCollectionPresent": false,
+                "IsSignaturesPresent": false
+              },
+              "metadata": null,
+              "totalPages": 2
+            },
+            "loc": {
+              "lines": {
+                "from": 19,
+                "to": 34
+              }
+            }
+          },
+          "pageContent": "6 SEO & Content Marketing 03:30 PM – 04:45 PM\n7 AI Tools & Automation (AI) 04:45 PM – 06:00 PM\nAI Tools & Automation Mastery Program\nInstructor: Muhammad Usama Ehsan\nInstructor Profile: AI Consultant, Software Engineer and Digital Growth Strategist with 5+ years of professional\nexperience in Artificial Intelligence, AI Automation, Digital Marketing, E-commerce, Web Development and Mobile App\nDevelopment. The poster describes him as the founder of a Software House and Digital Marketing Agency, with\nexperience delivering real-world projects across multiple industries.\nProgram Focus: Learn AI tools, automation, AI chatbots and assistants, AI agents, AI-powered development,\nmarketing automation, freelancing and portfolio building.\nCourse Outline\n1 AI Fundamentals & Future of Artificial Intelligence\n2 Prompt Engineering Mastery\n3 AI Productivity & Business Tools\n4 AI Content Creation & Branding\n5 No-Code Automation with Zapier, Make & n8n"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "metadata": {
+            "source": "blob",
+            "blobType": "application/pdf",
+            "pdf": {
+              "info": {
+                "PDFFormatVersion": "1.4",
+                "Language": null,
+                "EncryptFilterName": null,
+                "IsLinearized": false,
+                "IsAcroFormPresent": false,
+                "IsXFAPresent": false,
+                "IsCollectionPresent": false,
+                "IsSignaturesPresent": false
+              },
+              "metadata": null,
+              "totalPages": 2
+            },
+            "loc": {
+              "lines": {
+                "from": 36,
+                "to": 51
+              }
+            }
+          },
+          "pageContent": "6 GoHighLevel CRM & Business Automation\n7 AI Chatbots & AI Assistants Development\n8 AI Agents & Intelligent Automation\n9 Vibe Coding & AI-Powered Development\n10 AI-Powered Web, App & SaaS Development\n11 AI Marketing, Lead Generation & Sales Automation\n12 Freelancing, Client Acquisition & Personal Branding\n13 Portfolio Development & Real-World AI Projects\n14 Career Launch, Remote Jobs & AI Agency Growth\nWhat You Will Gain\n• Master AI tools & automation • Build AI chatbots & AI assistants\n• Create web, app & SaaS projects • Automate business workflows\n• Start freelancing & earn online • Build a practical portfolio through real-world projects\nTiming Note: The main admissions schedule shown in the August poster lists AI Tools & Automation from 04:45 PM–06:00 PM. The\nseparate AI Automation Mastery Program poster shows a July 2026 batch with class time 03:30 PM–05:00 PM. For the current\nadmission, confirm the final AI class timing with the E-Rozgaar Center."
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "metadata": {
+            "source": "blob",
+            "blobType": "application/pdf",
+            "pdf": {
+              "info": {
+                "PDFFormatVersion": "1.4",
+                "Language": null,
+                "EncryptFilterName": null,
+                "IsLinearized": false,
+                "IsAcroFormPresent": false,
+                "IsXFAPresent": false,
+                "IsCollectionPresent": false,
+                "IsSignaturesPresent": false
+              },
+              "metadata": null,
+              "totalPages": 2
+            },
+            "loc": {
+              "lines": {
+                "from": 50,
+                "to": 53
+              }
+            }
+          },
+          "pageContent": "separate AI Automation Mastery Program poster shows a July 2026 batch with class time 03:30 PM–05:00 PM. For the current\nadmission, confirm the final AI class timing with the E-Rozgaar Center.\nPrepared from the two E-Rozgaar Center, University of Sargodha posters provided in this chat. Dates, fee, timings and other details\nare reproduced from those posters."
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "Google Drive Trigger": [
+      {
+        "json": {
+          "kind": "drive#file",
+          "fileExtension": "pdf",
+          "copyRequiresWriterPermission": false,
+          "md5Checksum": "6ddfeed84d52719720dc76ab039e1768",
+          "writersCanShare": true,
+          "viewedByMe": true,
+          "mimeType": "application/pdf",
+          "parents": [
+            "1YHsZMtkT4xb95_f_-pGWDUXR-vlJh7FZ"
+          ],
+          "thumbnailLink": "https://lh3.googleusercontent.com/drive-storage/AJQWtBPRGqma7DoEqx5ka1eVHb_tG5r3mnKk9zpCwDlazJnTDvvpIqZZ24BqC5FsdbsSgJbzrh_nkAxv-V65U3n258yCmzwmSOq6GqzlxD09D0E7BuAhcA=s220",
+          "iconLink": "https://drive-thirdparty.googleusercontent.com/16/type/application/pdf",
+          "shared": false,
+          "lastModifyingUser": {
+            "displayName": "Sadia Sahar",
+            "kind": "drive#user",
+            "me": true,
+            "permissionId": "02318206801942217351",
+            "emailAddress": "sadiasahar86@gmail.com",
+            "photoLink": "https://lh3.googleusercontent.com/a/ACg8ocIjAEJqFuW418_QAzgicwI9aQEHUr4GNqujtrS3x_xhBaR6LA=s64"
+          },
+          "owners": [
+            {
+              "displayName": "Sadia Sahar",
+              "kind": "drive#user",
+              "me": true,
+              "permissionId": "02318206801942217351",
+              "emailAddress": "sadiasahar86@gmail.com",
+              "photoLink": "https://lh3.googleusercontent.com/a/ACg8ocIjAEJqFuW418_QAzgicwI9aQEHUr4GNqujtrS3x_xhBaR6LA=s64"
+            }
+          ],
+          "headRevisionId": "0B-K-Y7H6C6wbS0lIODZ5cDRtcnlCcmhqcmVJcmRaYnZHMllVPQ",
+          "webViewLink": "https://drive.google.com/file/d/1psqSkEqOvgkCeINvJVhlMBAARhW-T4_1/view?usp=drivesdk",
+          "webContentLink": "https://drive.google.com/uc?id=1psqSkEqOvgkCeINvJVhlMBAARhW-T4_1&export=download",
+          "size": "30929",
+          "viewersCanCopyContent": true,
+          "permissions": [
+            {
+              "id": "02318206801942217351",
+              "displayName": "Sadia Sahar",
+              "type": "user",
+              "kind": "drive#permission",
+              "photoLink": "https://lh3.googleusercontent.com/a/ACg8ocIjAEJqFuW418_QAzgicwI9aQEHUr4GNqujtrS3x_xhBaR6LA=s64",
+              "emailAddress": "Sadiasahar86@gmail.com",
+              "role": "owner",
+              "deleted": false,
+              "pendingOwner": false
+            }
+          ],
+          "hasThumbnail": true,
+          "spaces": [
+            "drive"
+          ],
+          "id": "1psqSkEqOvgkCeINvJVhlMBAARhW-T4_1",
+          "name": "UOS_E_Rozgaar_Courses_and_AI_Automation_Details(1).pdf",
+          "starred": false,
+          "trashed": false,
+          "explicitlyTrashed": false,
+          "createdTime": "2026-09-02T09:09:22.070Z",
+          "modifiedTime": "2026-09-02T09:09:00.000Z",
+          "modifiedByMeTime": "2026-09-02T09:09:00.000Z",
+          "viewedByMeTime": "2026-09-02T09:16:29.355Z",
+          "quotaBytesUsed": "30929",
+          "version": "5",
+          "originalFilename": "UOS_E_Rozgaar_Courses_and_AI_Automation_Details(1).pdf",
+          "ownedByMe": true,
+          "fullFileExtension": "pdf",
+          "isAppAuthorized": false,
+          "capabilities": {
+            "canChangeViewersCanCopyContent": true,
+            "canEdit": true,
+            "canCopy": true,
+            "canComment": true,
+            "canAddChildren": false,
+            "canDelete": true,
+            "canDownload": true,
+            "canListChildren": false,
+            "canRemoveChildren": false,
+            "canRename": true,
+            "canTrash": true,
+            "canReadRevisions": true,
+            "canChangeCopyRequiresWriterPermission": true,
+            "canMoveItemIntoTeamDrive": true,
+            "canUntrash": true,
+            "canModifyContent": true,
+            "canMoveItemOutOfDrive": true,
+            "canAddMyDriveParent": false,
+            "canRemoveMyDriveParent": true,
+            "canMoveItemWithinDrive": true,
+            "canShare": true,
+            "canMoveChildrenWithinDrive": false,
+            "canModifyContentRestriction": true,
+            "canChangeSecurityUpdateEnabled": false,
+            "canAcceptOwnership": false,
+            "canReadLabels": false,
+            "canModifyLabels": false,
+            "canModifyEditorContentRestriction": true,
+            "canModifyOwnerContentRestriction": true,
+            "canRemoveContentRestriction": false,
+            "canDisableInheritedPermissions": false,
+            "canEnableInheritedPermissions": true,
+            "canChangeItemDownloadRestriction": true,
+            "canStartApproval": false,
+            "canAccessViaGenAi": true
+          },
+          "thumbnailVersion": "1",
+          "modifiedByMe": true,
+          "permissionIds": [
+            "02318206801942217351"
+          ],
+          "linkShareMetadata": {
+            "securityUpdateEligible": false,
+            "securityUpdateEnabled": true
+          },
+          "sha1Checksum": "708803b975a2fcfe3ab8995489ba9e858328378b",
+          "sha256Checksum": "e7679e1568005b05d6a6d28b87d28f2ef83139442d3349a79914a999f4f08a8a",
+          "inheritedPermissionsDisabled": false,
+          "downloadRestrictions": {
+            "itemDownloadRestriction": {
+              "restrictedForReaders": false,
+              "restrictedForWriters": false
+            },
+            "effectiveDownloadRestrictionWithContext": {
+              "restrictedForReaders": false,
+              "restrictedForWriters": false
+            }
+          },
+          "clientEncryptionDetails": {
+            "decryptionMetadata": {
+              "wrappedKey": "",
+              "kaclsId": "0",
+              "aes256GcmChunkSize": "unset",
+              "keyFormat": "unsetKeyFormat",
+              "encryptionResourceKeyHash": ""
+            }
+          }
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Google Drive Trigger": {
+      "main": [
+        [
+          {
+            "node": "Download file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file": {
+      "main": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Google Gemini": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pinecone Vector Store1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Google Gemini1": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Pinecone Vector Store1",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "8e1dd0ff-6fef-4781-8e67-41aa04190506",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ae0494721d135b4751081bd0ecb76e8086cc5658bdbd6c25eee47e3da995f285"
+  },
+  "nodeGroups": [],
+  "id": "8yFDceNg5rko2Zek",
+  "tags": []
+}

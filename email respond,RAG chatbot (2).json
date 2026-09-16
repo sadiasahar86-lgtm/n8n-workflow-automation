@@ -1,0 +1,275 @@
+{
+  "name": "email respond,RAG chatbot",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -192,
+        -64
+      ],
+      "id": "1fa594a7-34ae-4f8e-ac47-3bbb317edff7",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "U44xGSl8g1HF1bWK",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.snippet }}",
+        "options": {
+          "systemMessage": "You are a helpful assistant always use 'pinecone vector store\" tool for any information about E-Rozgar program at UOS."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        208,
+        -64
+      ],
+      "id": "a9ab9a91-061a-4a3c-a13a-75406a59249c",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.5-flash-lite",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        128,
+        160
+      ],
+      "id": "25e2f6b7-3741-49fc-9205-a982a534b8ad",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "w7D3ECjy6hxGBSRM",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "use this tool for any information about uos e-rozgar program",
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "n8n-series-1",
+          "mode": "list",
+          "cachedResultName": "n8n-series-1"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1.3,
+      "position": [
+        416,
+        112
+      ],
+      "id": "f66ee80d-57c8-4d7a-b5ae-51b559e29a84",
+      "name": "Pinecone Vector Store",
+      "credentials": {
+        "pineconeApi": {
+          "id": "AROVoMpLiPzNrxtz",
+          "name": "Pinecone account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-embedding-2-preview"
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        640,
+        272
+      ],
+      "id": "ea677520-0d55-4d91-9ed8-52740f5f0a75",
+      "name": "Embeddings Google Gemini",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "w7D3ECjy6hxGBSRM",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "reply",
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+        "emailType": "text",
+        "message": "={{ $json.output }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        720,
+        -64
+      ],
+      "id": "00c23bac-719f-415b-98a8-69a6dcdba6c5",
+      "name": "Reply to a message",
+      "webhookId": "a4499d8b-8f2c-4898-b6a2-9b1701beaf78",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "U44xGSl8g1HF1bWK",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Gmail Trigger": [
+      {
+        "json": {
+          "id": "1a084a81adb4a9ff",
+          "threadId": "1a084a81adb4a9ff",
+          "snippet": "I just want to know about the course of E-Rozgar program at UOS.please tell me about the courses outline,and their fee,and time.",
+          "payload": {
+            "mimeType": "multipart/alternative"
+          },
+          "sizeEstimate": 7240,
+          "historyId": "704910",
+          "internalDate": "1788931992000",
+          "labels": [
+            {
+              "id": "INBOX",
+              "name": "INBOX"
+            },
+            {
+              "id": "IMPORTANT",
+              "name": "IMPORTANT"
+            },
+            {
+              "id": "CATEGORY_PERSONAL",
+              "name": "CATEGORY_PERSONAL"
+            },
+            {
+              "id": "UNREAD",
+              "name": "UNREAD"
+            }
+          ],
+          "From": "sahar Khan <saharrana272@gmail.com>",
+          "Subject": "About E-Rozgar program",
+          "To": "Sadiasahar86@gmail.com"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "Reply to a message": [
+      {
+        "json": {
+          "id": "1a084c1e3ef93142",
+          "threadId": "1a084a81adb4a9ff",
+          "labelIds": [
+            "SENT"
+          ]
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "AI Agent": [
+      {
+        "json": {
+          "output": "Here are the details for the **e-Rozgaar Program at the University of Sargodha (UOS)** (Regular Session):\n\n### **Fee**\n* **PKR 9,000 per course**\n\n---\n\n### **Courses, Timings & Outlines**\n\n#### **1. VA & Office Automation (Basic Computer)**\n* **Timing:** 08:30 AM – 10:00 AM\n\n#### **2. Social Media Marketing (Google, Meta & TikTok Ads)**\n* **Timing:** 10:00 AM – 11:30 AM\n\n#### **3. WordPress / Web Development**\n* **Timing:** 11:30 AM – 01:00 PM\n\n#### **4. Graphic Design & YouTube Automation**\n* **Timing:** 01:00 PM – 02:15 PM\n\n#### **5. eCommerce with Amazon**\n* **Timing:** 02:15 PM – 03:30 PM\n\n#### **6. SEO & Content Marketing**\n* **Timing:** 03:30 PM – 04:45 PM\n\n#### **7. AI Tools & Automation Mastery Program** *(Instructor: Muhammad Usama Ehsan)*\n* **Timing:** 04:45 PM – 06:00 PM\n* **Course Outline:**\n  1. AI Fundamentals & Future of Artificial Intelligence\n  2. Prompt Engineering Mastery\n  3. AI Productivity & Business Tools\n  4. AI Content Creation & Branding\n  5. No-Code Automation with Zapier, Make & n8n\n  6. GoHighLevel CRM & Business Automation\n  7. AI Chatbots & AI Assistants Development\n  8. AI Agents & Intelligent Automation\n  9. Vibe Coding & AI-Powered Development\n  10. AI-Powered Web, App & SaaS Development\n  11. AI Marketing, Lead Generation & Sales Automation\n  12. Freelancing, Client Acquisition & Personal Branding\n  13. Portfolio Development & Real-World AI Projects\n  14. Career Launch, Remote Jobs & AI Agency Growth\n\n---\n\n### **Venue**\n* **e-Rozgaar Center, STC Building, University of Sargodha**\n\nFor the most up-to-date schedule changes or to apply officially, you can visit the official University of Sargodha e-Rozgaar portal."
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Reply to a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pinecone Vector Store": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Google Gemini": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "f67f5823-7684-4427-a924-131820f55c97",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "6f8820b9c525bff9e18ae66b2761aa24b74d14649f5163e2dc0a6569b33a7647"
+  },
+  "nodeGroups": [],
+  "id": "4frhZ9LiaGxYydJ9",
+  "tags": []
+}

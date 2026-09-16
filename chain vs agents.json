@@ -1,0 +1,277 @@
+{
+  "name": "chain vs agents",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "f9011c85-154b-4479-9267-00f33403f379",
+      "name": "When chat message received",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.5,
+      "position": [
+        -288,
+        -80
+      ],
+      "webhookId": "d175ec92-34fa-4842-b9fa-14db4b8e09a9"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.chatInput }}",
+                    "rightValue": "chain",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    },
+                    "id": "014eed56-1e12-472a-8e8e-b7d99b52356a"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "7861ef04-b9d2-427c-b494-afdf803a9b21",
+                    "leftValue": "={{ $json.chatInput }}",
+                    "rightValue": "agent",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "id": "20c3a0b1-b95f-4e29-b7f1-4d3b33f60c31",
+      "name": "Switch",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -64,
+        -80
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('When chat message received').item.json.chatInput }}",
+        "batching": {}
+      },
+      "id": "60e9b471-820d-458d-a847-760295cefae2",
+      "name": "Basic LLM Chain",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        848,
+        -128
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "122f0433-5f56-4732-96b1-ae7646636c19",
+      "name": "Google Gemini Chat Model1",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        848,
+        80
+      ],
+      "credentials": {
+        "googlePalmApi": {
+          "id": "w7D3ECjy6hxGBSRM",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.chatInput }}",
+        "options": {
+          "systemMessage": "You are a helpful assistant. Use the Wikipedia tool when you need factual information."
+        }
+      },
+      "id": "d0bb7976-c7af-4f24-a6f1-02155c137b88",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        288,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.5-flash-lite",
+        "options": {}
+      },
+      "id": "167ee849-8ed2-4d5d-8c50-13a69716a3e8",
+      "name": "Google Gemini Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        160,
+        160
+      ],
+      "credentials": {
+        "googlePalmApi": {
+          "id": "w7D3ECjy6hxGBSRM",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "abd45b62-20ba-409b-9a3d-c7958b3a1ba4",
+      "name": "Simple Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        336,
+        192
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "f23fa269-e202-4ac9-89e6-45862f2a8e4f",
+      "name": "Wikipedia",
+      "type": "@n8n/n8n-nodes-langchain.toolWikipedia",
+      "typeVersion": 1,
+      "position": [
+        560,
+        192
+      ]
+    }
+  ],
+  "pinData": {
+    "AI Agent": [
+      {
+        "json": {
+          "output": "**Cat Agent** is an internet animated web series created by writer, animator, and producer **Kent Osborne** (known for his prominent work on *Adventure Time*, *SpongeBob SquarePants*, and *Regular Show*). \n\nHere are the key details surrounding the project:\n\n### Background & Release\n* **Creator:** Kent Osborne developed the series, leveraging his extensive background in comedic, surreal, and character-driven animation.\n* **Platform:** It was released around **2013** on **Rug Burn**, a YouTube-backed adult animation network born from a partnership between animation studios **Titmouse, Inc.** and **6 Point Harness** (known for producing internet-to-television hits like *Dick Figures* and *Apollo Gauntlet*).\n* **Style:** True to the aesthetic of the Rug Burn network and Osborne's indie style (which also touches the mumblecore film movement, such as *Uncle Kent*), *Cat Agent* featured a distinct, offbeat, and internet-centric comedic style.\n\nIf you were looking for information on a different subject matching \"cat agent\"—such as intelligence/espionage pop culture (like *Cats & Dogs*) or a software utility—please let me know!"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wikipedia": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "7c0dad91-88cf-4c98-9bb5-4452df8eaade",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "6f8820b9c525bff9e18ae66b2761aa24b74d14649f5163e2dc0a6569b33a7647"
+  },
+  "nodeGroups": [],
+  "id": "JmbF8yEvEyMD6ZsY",
+  "tags": []
+}
