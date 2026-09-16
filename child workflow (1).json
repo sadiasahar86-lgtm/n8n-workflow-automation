@@ -1,0 +1,130 @@
+{
+  "name": "child workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        16,
+        -32
+      ],
+      "id": "add53073-4c13-446e-97c8-2d156b387ddf",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "cityName": "={{ $json.query }}",
+        "language": "eng"
+      },
+      "type": "n8n-nodes-base.openWeatherMap",
+      "typeVersion": 1,
+      "position": [
+        256,
+        -32
+      ],
+      "id": "5159e016-1463-4aed-a0a2-b4b7feaa0236",
+      "name": "OpenWeatherMap",
+      "credentials": {
+        "openWeatherMapApi": {
+          "id": "HEKvoGXoJe8BOOpK",
+          "name": "OpenWeatherMap account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=use this weather detail and create a simple readable text that explain those weather details",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        448,
+        -32
+      ],
+      "id": "bc91823a-a189-47e2-82a8-7206153a9eab",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.5-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        400,
+        160
+      ],
+      "id": "d859371b-f5da-4c7d-8f16-1d25dd0a2cf8",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "w7D3ECjy6hxGBSRM",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "query": "sargodha"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "OpenWeatherMap",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenWeatherMap": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "fb0138b3-524f-44f3-8905-6f26899faaa4",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "6f8820b9c525bff9e18ae66b2761aa24b74d14649f5163e2dc0a6569b33a7647"
+  },
+  "nodeGroups": [],
+  "id": "FEpPY24qLv0FbPiB",
+  "tags": []
+}
