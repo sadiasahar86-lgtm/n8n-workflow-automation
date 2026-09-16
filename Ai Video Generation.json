@@ -1,0 +1,203 @@
+{
+  "name": "Ai Video Generation",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "956ffba0-b920-4bbd-a785-34168ef8520d",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.kie.ai/api/v1/veo/generate",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer 6fac254e30cf574ab0ff365992a38195"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"prompt\": \"A cat dancing on the moon\",\n  \"model\": \"veo3_fast\",\n  \"aspect_ratio\": \"16:9\",\n  \"enableTranslation\": true,\n  \"generationType\": \"TEXT_2_VIDEO\"\n}",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "deb062c0-781a-488d-9b43-a235e82ce043",
+      "name": "Send video Req"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.kie.ai/api/v1/veo/record-info?taskId={{ $json.data.taskId }}",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "index",
+              "value": "0"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer 6fac254e30cf574ab0ff365992a38195"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        416,
+        0
+      ],
+      "id": "1139f837-6f36-4e8c-ae3c-0f580f9cdaf5",
+      "name": "Get Video"
+    },
+    {
+      "parameters": {
+        "url": "https://api.kie.ai/api/v1/jobs/recordInfo/",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "taskId"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer <token>"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        224,
+        288
+      ],
+      "id": "5edac158-127c-4bae-bdb8-cf25a86a45c9",
+      "name": "HTTP Request"
+    }
+  ],
+  "pinData": {
+    "Send video Req": [
+      {
+        "json": {
+          "code": 200,
+          "msg": "success",
+          "data": {
+            "taskId": "f6de5e0ad128a09ea417040883840a85"
+          }
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "Get Video": [
+      {
+        "json": {
+          "code": 200,
+          "msg": "success",
+          "data": {
+            "taskId": "f6de5e0ad128a09ea417040883840a85",
+            "paramJson": "{\"aspectRatio\":\"16:9\",\"duration\":8,\"enableFallback\":false,\"enableTranslation\":true,\"generationType\":\"TEXT_2_VIDEO\",\"model\":\"veo3_fast\",\"prompt\":\"A cat dancing on the moon\",\"resolution\":\"720p\"}",
+            "response": {
+              "taskId": "f6de5e0ad128a09ea417040883840a85",
+              "resolution": "720p",
+              "originUrls": null,
+              "resultUrls": [
+                "https://tempfile.aiquickdraw.com/v/f6de5e0ad128a09ea417040883840a85_1781615770.mp4"
+              ],
+              "fullResultUrls": null,
+              "full_result_urls": null,
+              "hasAudioList": [
+                true
+              ],
+              "seeds": [
+                94347
+              ]
+            },
+            "successFlag": 1,
+            "fallbackFlag": false,
+            "completeTime": 1781615773000,
+            "createTime": 1781615703000,
+            "errorCode": null,
+            "errorMessage": null
+          }
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Send video Req",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send video Req": {
+      "main": [
+        [
+          {
+            "node": "Get Video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "cc1c8aae-470e-45d7-84c0-c92ccfa4186d",
+  "meta": {
+    "instanceId": "ae0494721d135b4751081bd0ecb76e8086cc5658bdbd6c25eee47e3da995f285"
+  },
+  "nodeGroups": [],
+  "id": "hXZhUa2ggFW4gKn1",
+  "tags": []
+}
